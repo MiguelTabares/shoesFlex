@@ -1,0 +1,466 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "ZapatoFlex API",
+        "description": "API Oficial para la plataforma e-commerce ZapatoFlex",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:3000/api",
+            "description": "Local Development Server"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        }
+    },
+    "security": [
+        {
+            "bearerAuth": []
+        }
+    ],
+    "paths": {
+        "/auth/register": {
+            "post": {
+                "summary": "Registrar un nuevo usuario",
+                "tags": [
+                    "Auth"
+                ],
+                "security": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nombre": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Usuario registrado exitosamente"
+                    },
+                    "400": {
+                        "description": "El email ya está en uso / Datos inválidos"
+                    }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "summary": "Login de usuario",
+                "tags": [
+                    "Auth"
+                ],
+                "security": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login exitoso (Retorna Token)"
+                    },
+                    "401": {
+                        "description": "Credenciales inválidas"
+                    }
+                }
+            }
+        },
+        "/products": {
+            "get": {
+                "summary": "Obtener catálogo de productos con filtros",
+                "tags": [
+                    "Productos"
+                ],
+                "security": [],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "categoria",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "color",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "talla",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "precioMax",
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de productos"
+                    }
+                }
+            },
+            "post": {
+                "summary": "Crear un producto (Solo ADMIN)",
+                "tags": [
+                    "Productos"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nombre": {
+                                        "type": "string"
+                                    },
+                                    "descripcion": {
+                                        "type": "string"
+                                    },
+                                    "precio": {
+                                        "type": "number"
+                                    },
+                                    "marca": {
+                                        "type": "string"
+                                    },
+                                    "color": {
+                                        "type": "string"
+                                    },
+                                    "categoria": {
+                                        "type": "string"
+                                    },
+                                    "imagen_url": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Producto creado"
+                    }
+                }
+            }
+        },
+        "/products/{id}": {
+            "put": {
+                "summary": "Actualizar producto (Solo ADMIN)",
+                "tags": [
+                    "Productos"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Producto actualizado"
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Eliminar producto (Solo ADMIN)",
+                "tags": [
+                    "Productos"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Producto eliminado"
+                    }
+                }
+            }
+        },
+        "/inventario": {
+            "post": {
+                "summary": "Añadir inventario a un producto (Solo ADMIN)",
+                "tags": [
+                    "Inventario"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "producto_id": {
+                                        "type": "string"
+                                    },
+                                    "talla": {
+                                        "type": "string"
+                                    },
+                                    "stock": {
+                                        "type": "number"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Inventario creado"
+                    }
+                }
+            }
+        },
+        "/inventario/producto/{producto_id}": {
+            "get": {
+                "summary": "Obtener tallas/inventario de un producto específico",
+                "tags": [
+                    "Inventario"
+                ],
+                "security": [],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "producto_id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Inventario retornado"
+                    }
+                }
+            }
+        },
+        "/inventario/{id}": {
+            "put": {
+                "summary": "Actualizar stock de una talla (Solo ADMIN)",
+                "tags": [
+                    "Inventario"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Actualizado"
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Eliminar inventario de una talla (Solo ADMIN)",
+                "tags": [
+                    "Inventario"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Eliminado"
+                    }
+                }
+            }
+        },
+        "/carrito": {
+            "get": {
+                "summary": "Obtener el carrito activo del usuario",
+                "tags": [
+                    "Carrito"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Carrito actual"
+                    }
+                }
+            }
+        },
+        "/carrito/items": {
+            "post": {
+                "summary": "Añadir item al carrito",
+                "tags": [
+                    "Carrito"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "inventario_id": {
+                                        "type": "string"
+                                    },
+                                    "cantidad": {
+                                        "type": "number"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Añadido al carrito"
+                    }
+                }
+            }
+        },
+        "/carrito/items/{item_id}": {
+            "put": {
+                "summary": "Actualizar cantidad de item",
+                "tags": [
+                    "Carrito"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "item_id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "cantidad": {
+                                        "type": "number"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Actualizado"
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Remover item del carrito",
+                "tags": [
+                    "Carrito"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "item_id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Eliminado"
+                    }
+                }
+            }
+        },
+        "/pedidos/checkout": {
+            "post": {
+                "summary": "Procesar pago contraentrega y vaciar carrito",
+                "tags": [
+                    "Pedidos"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Pedido creado, carrito limpiado e inventario descontado"
+                    }
+                }
+            }
+        },
+        "/pedidos/mis-pedidos": {
+            "get": {
+                "summary": "Ver historial de pedidos del usuario",
+                "tags": [
+                    "Pedidos"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Historial de pedidos"
+                    }
+                }
+            }
+        }
+    }
+}

@@ -15,7 +15,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-import swaggerDocument from '../swagger.json';
+import swaggerDocument from './swagger.json';
 
 // Routes
 app.use('/api/auth', authRoutes);
