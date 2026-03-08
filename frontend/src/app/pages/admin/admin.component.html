@@ -1,0 +1,202 @@
+<div class="admin-dashboard animate-fade-in">
+    <header class="admin-header">
+        <div>
+            <h1>Panel Administrativo</h1>
+            <p>Bienvenido, {{ adminRole }}</p>
+        </div>
+        <button class="btn border" (click)="goHome()">Volver a Tienda</button>
+    </header>
+
+    <div class="dashboard-grid">
+        <!-- Sidebar / Tabs -->
+        <aside class="admin-sidebar">
+            <ul>
+                <li [class.active]="activeTab === 'productos'" (click)="activeTab = 'productos'">📦 Catálogo Global</li>
+                <li [class.active]="activeTab === 'inventario'" (click)="activeTab = 'inventario'">📋 Gestión de Tallas
+                </li>
+                <li [class.active]="activeTab === 'pedidos'" (click)="activeTab = 'pedidos'">🚚 Pedidos y Compras</li>
+            </ul>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="admin-main">
+            <!-- PRODUCTOS TAB -->
+            <section *ngIf="activeTab === 'productos'" class="tab-content fade">
+                <div class="section-header">
+                    <h2>Gestión de Productos</h2>
+                    <button class="btn primary" (click)="openCreateProduct()">+ Agregar Producto</button>
+                </div>
+
+                <div class="table-container" *ngIf="!showProductForm">
+                    <table class="modern-table">
+                        <thead>
+                            <tr>
+                                <th>Imagen</th>
+                                <th>Nombre</th>
+                                <th>Precio</th>
+                                <th>Categoría</th>
+                                <th>Marca</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let prod of productos">
+                                <td>
+                                    <div class="mini-img" [style.backgroundImage]="'url(' + prod.imagen_url + ')'">
+                                    </div>
+                                </td>
+                                <td><strong>{{ prod.nombre }}</strong></td>
+                                <td>${{ prod.precio }}</td>
+                                <td><span class="pill">{{ prod.categoria }}</span></td>
+                                <td>{{ prod.marca }}</td>
+                                <td class="actions">
+                                    <button class="btn-icon" (click)="openEditProduct(prod)" title="Editar">✏️</button>
+                                    <button class="btn-icon danger" (click)="deleteProduct(prod.id)"
+                                        title="Eliminar">🗑️</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Product Form -->
+                <div class="form-container" *ngIf="showProductForm">
+                    <h3>{{ currentProduct.id ? 'Editar Producto' : 'Nuevo Producto' }}</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Nombre</label>
+                            <input type="text" [(ngModel)]="currentProduct.nombre" class="modern-input">
+                        </div>
+                        <div class="form-group">
+                            <label>Marca</label>
+                            <input type="text" [(ngModel)]="currentProduct.marca" class="modern-input">
+                        </div>
+                        <div class="form-group">
+                            <label>Precio</label>
+                            <input type="number" [(ngModel)]="currentProduct.precio" class="modern-input">
+                        </div>
+                        <div class="form-group">
+                            <label>Categoría</label>
+                            <select [(ngModel)]="currentProduct.categoria" class="modern-input">
+                                <option *ngFor="let cat of categorias" [value]="cat">{{ cat }}</option>
+                            </select>
+                        </div>
+                        <div class="form-group half">
+                            <label>Color</label>
+                            <input type="text" [(ngModel)]="currentProduct.color" class="modern-input">
+                        </div>
+                        <div class="form-group half">
+                            <label>URL Imagen HD</label>
+                            <input type="text" [(ngModel)]="currentProduct.imagen_url" class="modern-input">
+                        </div>
+                        <div class="form-group full">
+                            <label>Descripción</label>
+                            <textarea [(ngModel)]="currentProduct.descripcion" class="modern-input"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn border" (click)="showProductForm = false">Cancelar</button>
+                        <button class="btn primary" (click)="saveProduct()">Guardar Cambios</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- INVENTARIO TAB -->
+            <section *ngIf="activeTab === 'inventario'" class="tab-content fade">
+                <div class="section-header">
+                    <h2>Stock Global</h2>
+                </div>
+
+                <div class="inventory-selector" *ngIf="!showInventoryForm">
+                    <label>Selecciona un zapato para ver sus tallas y stock:</label>
+                    <select class="modern-input massive" [(ngModel)]="selectedProductIdForInventory"
+                        (change)="onProductSelectForInventory()">
+                        <option value="">-- Elige un producto --</option>
+                        <option *ngFor="let p of productos" [value]="p.id">{{ p.nombre }} ({{ p.marca }})</option>
+                    </select>
+
+                    <button class="btn primary mt" *ngIf="selectedProductIdForInventory" (click)="openAddInventory()">+
+                        Nueva Talla Faltante</button>
+                </div>
+
+                <div class="table-container mt" *ngIf="!showInventoryForm && selectedProductIdForInventory">
+                    <table class="modern-table">
+                        <thead>
+                            <tr>
+                                <th>Talla</th>
+                                <th>Stock Actual</th>
+                                <th>Estado</th>
+                                <th>Ajustar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let inv of inventarios">
+                                <td class="bold">Talla {{ inv.talla }}</td>
+                                <td>{{ inv.stock }} uds.</td>
+                                <td>
+                                    <span class="status green" *ngIf="inv.stock >= 10">Óptimo</span>
+                                    <span class="status orange" *ngIf="inv.stock > 0 && inv.stock < 10">Bajo</span>
+                                    <span class="status red" *ngIf="inv.stock === 0">Agotado</span>
+                                </td>
+                                <td class="actions">
+                                    <button class="btn-icon" (click)="openEditInventory(inv)">🔧</button>
+                                    <button class="btn-icon danger" (click)="deleteInventory(inv.id)">✖️</button>
+                                </td>
+                            </tr>
+                            <tr *ngIf="inventarios.length === 0">
+                                <td colspan="4" class="text-center">No hay inventario configurado para este producto.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Inventory Form -->
+                <div class="form-container" *ngIf="showInventoryForm">
+                    <h3>{{ currentInventory.id ? 'Editar Stock' : 'Ingresar Lote / Talla' }}</h3>
+                    <div class="form-group">
+                        <label>Talla (Ej. 39, 40, XL)</label>
+                        <input type="text" [(ngModel)]="currentInventory.talla" class="modern-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Stock Disponible</label>
+                        <input type="number" [(ngModel)]="currentInventory.stock" class="modern-input">
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn border" (click)="showInventoryForm = false">Volver</button>
+                        <button class="btn primary" (click)="saveInventory()">Guardar Inventario</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PEDIDOS TAB -->
+            <section *ngIf="activeTab === 'pedidos'" class="tab-content fade">
+                <div class="section-header">
+                    <h2>Historial de Órdenes & Pedidos</h2>
+                </div>
+                <div class="table-container">
+                    <table class="modern-table">
+                        <thead>
+                            <tr>
+                                <th>Resguardo ID</th>
+                                <th>Fecha</th>
+                                <th>Cliente</th>
+                                <th>Total Pagado</th>
+                                <th>Status De Logística</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let ped of pedidos">
+                                <td class="bold">{{ ped.id }}</td>
+                                <td>{{ ped.fecha }}</td>
+                                <td>{{ ped.usuario }}</td>
+                                <td class="green-text"><strong>${{ ped.total }}</strong></td>
+                                <td><span class="pill black">{{ ped.estado }}</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
