@@ -7,6 +7,7 @@ import { ProductService } from '../../services/product.service';
 import { Router } from '@angular/router';
 import { Producto, Inventario, CategoriaProducto } from '../../models/types';
 import { firstValueFrom } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Component({
     selector: 'app-admin',
@@ -126,7 +127,7 @@ export class AdminComponent implements OnInit {
             return;
         }
         try {
-            this.inventarios = await firstValueFrom(this.http.get<Inventario[]>(`http://localhost:3000/api/inventario/producto/${this.selectedProductIdForInventory}`));
+            this.inventarios = await firstValueFrom(this.http.get<Inventario[]>(`${environment.apiUrl}/inventario/producto/${this.selectedProductIdForInventory}`));
         } catch (error) {
             console.error('Error fetching inventory');
         }
@@ -157,9 +158,9 @@ export class AdminComponent implements OnInit {
             };
 
             if (this.currentInventory.id) {
-                await firstValueFrom(this.http.put(`http://localhost:3000/api/inventario/${this.currentInventory.id}`, payload, this.getAuthHeaders()));
+                await firstValueFrom(this.http.put(`${environment.apiUrl}/inventario/${this.currentInventory.id}`, payload, this.getAuthHeaders()));
             } else {
-                await firstValueFrom(this.http.post('http://localhost:3000/api/inventario', payload, this.getAuthHeaders()));
+                await firstValueFrom(this.http.post(`${environment.apiUrl}/inventario`, payload, this.getAuthHeaders()));
             }
             this.showInventoryForm = false;
             this.loadInventoryForProduct();
@@ -171,7 +172,7 @@ export class AdminComponent implements OnInit {
     async deleteInventory(id: string) {
         if (confirm('¿Eliminar esta talla del stock?')) {
             try {
-                await firstValueFrom(this.http.delete(`http://localhost:3000/api/inventario/${id}`, this.getAuthHeaders()));
+                await firstValueFrom(this.http.delete(`${environment.apiUrl}/inventario/${id}`, this.getAuthHeaders()));
                 this.loadInventoryForProduct();
             } catch (error) {
                 alert('No se pudo eliminar inventario');

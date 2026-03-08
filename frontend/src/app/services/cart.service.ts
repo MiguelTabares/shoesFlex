@@ -3,12 +3,13 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Carrito, CarritoItem } from '../models/types';
 import { AuthService } from './auth.service';
 import { firstValueFrom } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
 })
 export class CartService {
-    private apiUrl = 'http://localhost:3000/api/carrito';
+    private apiUrl = `${environment.apiUrl}/carrito`;
 
     // State global del carrito reactivo basado en signals
     cart = signal<Carrito | null>(null);
