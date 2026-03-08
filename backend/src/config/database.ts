@@ -1,20 +1,22 @@
 import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
+import pg from 'pg';
 
 dotenv.config();
 
 // Configuración de Sequelize para PostgreSQL (Vercel Postgres)
-// Se utiliza SSL en producción/Vercel por requisito de la plataforma
+// Se importa pg explícitamente para evitar el error en entornos serverless
 const sequelize = new Sequelize(process.env.POSTGRES_URL as string, {
     dialect: 'postgres',
     protocol: 'postgres',
+    dialectModule: pg,
     dialectOptions: {
         ssl: {
             require: true,
             rejectUnauthorized: false
         }
     },
-    logging: false, // Puedes cambiarlo a console.log para ver las transacciones SQL
+    logging: false,
 });
 
 const deaultDbContext = async () => {
