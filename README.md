@@ -5,7 +5,7 @@ ZapatoFlex es una plataforma de comercio electrónico especializada en la venta 
 **🔗 Links en Producción:**
 - **Frontend:** https://shoesflex-frontend.vercel.app
 - **Backend API:** https://shoesflex-backend.vercel.app/api
-- **Documentación Swagger:** https://shoesflex-backend.vercel.app/api/docs
+- **Documentación Swagger:** https://petstore.swagger.io/?url=https://shoesflex-backend.vercel.app/api/swagger.json
 
 ---
 
