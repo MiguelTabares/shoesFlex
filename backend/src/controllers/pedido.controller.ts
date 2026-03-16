@@ -1,4 +1,6 @@
 import { Request, Response } from 'express';
+import { Worker } from 'worker_threads';
+import path from 'path';
 import { Pedido } from '../models/pedido.model';
 import { ItemPedido } from '../models/item-pedido.model';
 import { CarritoRepository } from '../repositories/carrito.repository';
@@ -7,6 +9,7 @@ import { EstadoCarrito, EstadoPedido } from '../models/types';
 import { AuthRequest } from '../middlewares/auth.middleware';
 import { Carrito } from '../models/carrito.model';
 import { Producto } from '../models/producto.model';
+import { Usuario } from '../models/usuario.model';
 import { sequelize } from '../config/database';
 
 export class PedidoController {
@@ -81,6 +84,30 @@ export class PedidoController {
 
             await t.commit();
 
+            // 2. DISPARO DEL NODO DISTRIBUIDO (Worker Thread)
+            const usuario = await Usuario.findByPk(usuarioId);
+            const customerEmail = usuario ? usuario.email : 'cliente@ejemplo.com';
+            
+            try {
+                // Usamos la ruta al archivo compilado (.js) para asegurar compatibilidad en Vercel
+                const workerPath = path.resolve(__dirname, '../workers/order-processor.worker.js');
+                const worker = new Worker(workerPath, {
+                    workerData: {
+                        orderId: nuevoPedido.id,
+                        customerEmail: customerEmail,
+                        total: totalPedido
+                    }
+                });
+
+                // Escuchar eventos del hilo (Opcional, para logs)
+                worker.on('message', (msg) => console.log('Resultado del Nodo:', msg));
+                worker.on('error', (err) => console.error('Error en el Nodo Distribuido:', err));
+            } catch (err) {
+                console.error('No se pudo invocar el worker:', err);
+            }
+
+            // 3. RESPUESTA INMEDIATA
+            // No usamos 'await' para el worker. Respondemos al cliente de inmediato
             res.status(200).json({
                 message: 'Compra realizada exitosamente',
                 pedido: nuevoPedido

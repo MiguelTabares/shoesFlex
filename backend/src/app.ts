@@ -7,6 +7,7 @@ import inventarioRoutes from './routes/inventario.routes';
 import carritoRoutes from './routes/carrito.routes';
 import pedidoRoutes from './routes/pedido.routes';
 import swaggerDocument from './swagger.json';
+import { authenticateJWT } from './middlewares/auth.middleware';
 
 const app = express();
 
@@ -17,8 +18,10 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/inventario', inventarioRoutes);
-app.use('/api/carrito', carritoRoutes);
-app.use('/api/pedidos', pedidoRoutes);
+
+// Lógica de Gateway: El Proxy intercepta y valida antes de delegar a los servicios internos
+app.use('/api/carrito', authenticateJWT, carritoRoutes);
+app.use('/api/pedidos', authenticateJWT, pedidoRoutes);
 
 // Exponer el swagger.json como endpoint público para que la UI pueda consumirlo
 app.get('/api/swagger.json', (req, res) => {
