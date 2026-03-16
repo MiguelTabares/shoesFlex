@@ -89,8 +89,10 @@ export class PedidoController {
             const customerEmail = usuario ? usuario.email : 'cliente@ejemplo.com';
             
             try {
-                // Usamos la ruta al archivo compilado (.js) para asegurar compatibilidad en Vercel
-                const workerPath = path.resolve(__dirname, '../workers/order-processor.worker.js');
+                // Usamos path.join para mayor compatibilidad en entornos serverless
+                const workerPath = path.join(process.cwd(), 'dist', 'workers', 'order-processor.worker.js');
+                console.log('Invocando worker en:', workerPath);
+                
                 const worker = new Worker(workerPath, {
                     workerData: {
                         orderId: nuevoPedido.id,
